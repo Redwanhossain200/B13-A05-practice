@@ -72,9 +72,9 @@ function displayIssues(issues) {
 }
 
 function getPriorityClass(p) {
-  if (p === 'high') return 'text-red-600 bg-red-50';
-  if (p === 'medium') return 'text-orange-600 bg-orange-50';
-  return 'text-green-600 bg-green-50';
+  if (p === 'high') return 'text-[#ef4444] bg-[#FEECEC] rounded-2xl px-6 py-1 font-semibold';
+  if (p === 'medium') return 'text-[#f59e0b] bg-[#FFF6D1] rounded-2xl px-6 py-1 font-semibold';
+  return 'text-[#9ca3af] bg-[#eeeff2] rounded-2xl px-6 py-1 font-semibold';
 }
 
 // 4. Filter & Search
