@@ -20,6 +20,7 @@
   border: 1px solid #f1f5f9;
   border-top-width: 4px;
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .issue-card:hover {

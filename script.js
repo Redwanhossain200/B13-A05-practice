@@ -30,7 +30,7 @@ async function fetchIssues() {
   } finally {
     spinner.classList.add('hidden');
   }
-}
+};
 
 // 3. Display Function
 function displayIssues(issues) {
@@ -122,11 +122,11 @@ async function showDetails(id) {
                 <p class="text-xs text-gray-400 font-bold uppercase mb-1">Assignee:</p>
                 <p class="font-bold text-[#1E293B]">${data.assignee || 'Unassigned'}</p>
             </div>
-            <div class="text-left">
+            <div class="align-middle">
                 <p class="text-xs text-gray-400 font-bold uppercase mb-2">Priority:</p>
-                <span class="bg-red-500 text-white px-6 py-1 rounded-md text-xs font-bold uppercase">${data.priority}</span>
+                <span class="bg-red-500 text-white px-6 py-1 rounded-2xl text-xs font-bold uppercase">${data.priority}</span>
             </div>
         </div>
     `;
-  } catch (err) { content.innerHTML = '<p class="text-red-500">Error loading details.</p>'; }
+  } catch (err) { content.innerHTML = '<p class="text-red-500">Error loading details.</p>'; };
 }
