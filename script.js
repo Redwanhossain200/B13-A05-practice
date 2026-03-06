@@ -32,6 +32,37 @@ async function fetchIssues() {
   }
 };
 
+// --- Icon and Label Helper Function ---
+function getLabelHTML(labels) {
+  return labels.map(l => {
+    let labelLower = l.toLowerCase();
+    let color = '';
+    let icon = '';
+
+    if (labelLower.includes('bug')) {
+      color = 'bg-red-50 text-red-500 border-red-100';
+      icon = 'fa-bug'; 
+    } else if (labelLower.includes('help')) {
+      color = 'bg-orange-50 text-orange-500 border-orange-100';
+      icon = 'fa-hand-holding-heart'; 
+    } else if (labelLower.includes('enhancement')) {
+      color = 'bg-blue-50 text-blue-500 border-blue-100';
+      icon = 'fa-wand-magic-sparkles'; 
+    } else if (labelLower.includes('documentation')) {
+      color = 'bg-gray-50 text-gray-500 border-gray-100';
+      icon = 'fa-file-lines'; 
+    } else {
+      color = 'bg-green-50 text-green-500 border-green-100';
+      icon = 'fa-tag'; 
+    }
+
+    return `<span class="label-pill ${color} border py-1 px-3 rounded-full text-[11px] flex items-center gap-1">
+                <i class="fa-solid ${icon} text-[10px]"></i> 
+                ${l}
+            </span>`;
+  }).join('');
+}
+
 // 3. Display Function
 function displayIssues(issues) {
   const grid = document.getElementById('issue-grid');
@@ -54,12 +85,7 @@ function displayIssues(issues) {
                 </h3>
                 <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">${issue.description}</p>
                 <div class="flex flex-wrap gap-2 mb-4">
-                    ${issue.labels.map(l => {
-      let color = l.toLowerCase().includes('bug') ? 'bg-red-50 text-red-500 border-red-100' :
-        l.toLowerCase().includes('help') ? 'bg-orange-50 text-orange-500 border-orange-100' :
-          'bg-green-50 text-green-500 border-green-100';
-      return `<span class="label-pill ${color}"><i class="fa-solid fa-tag text-[8px]"></i> ${l}</span>`;
-    }).join('')}
+                    ${getLabelHTML(issue.labels)}
                 </div>
             </div>
             <div class="border-t border-gray-50 pt-3 mt-auto flex flex-col gap-1 text-[10px] text-gray-400">
@@ -95,7 +121,7 @@ document.getElementById('search-input').addEventListener('input', async (e) => {
   } catch (err) { console.log(err); }
 });
 
-// 5. Modal Details (Based on Popup.png)
+// 5. Modal Details
 async function showDetails(id) {
   const modal = document.getElementById('issue_modal');
   const content = document.getElementById('modal-content');
@@ -114,7 +140,7 @@ async function showDetails(id) {
             <span class="text-gray-400 text-sm">• Opened by <span class="text-gray-600 font-medium">${data.author}</span> • ${new Date(data.createdAt).toLocaleDateString()}</span>
         </div>
         <div class="flex gap-2 mb-8">
-            ${data.labels.map(l => `<span class="label-pill bg-red-50 text-red-500 border border-red-100 py-1 px-3 text-[11px]"><i class="fa-solid fa-tag mr-1"></i> ${l}</span>`).join('')}
+            ${getLabelHTML(data.labels)}
         </div>
         <p class="text-gray-500 leading-relaxed mb-8">${data.description}</p>
         <div class="bg-gray-50 p-6 rounded-2xl flex justify-between items-center gap-3">
@@ -129,4 +155,4 @@ async function showDetails(id) {
         </div>
     `;
   } catch (err) { content.innerHTML = '<p class="text-red-500">Error loading details.</p>'; };
-}
+};
