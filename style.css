@@ -1,42 +1,42 @@
-* {
-  font-family: 'Geist', sans-serif;
-}
+* { font-family: 'Geist', sans-serif; }
 
 .active-tab {
-  background-color: #6366F1 !important;
-  color: white !important;
+    background-color: #4a00ff !important;
+    color: white !important;
 }
 
-.tab-btn {
-  transition: all 0.3s ease;
-}
+.tab-btn { transition: all 0.3s ease; }
+.tab-btn:hover:not(.active-tab) { background-color: #F1F5F9; }
 
-.tab-btn:hover:not(.active-tab) {
-  background-color: #F1F5F9;
-}
-
-/* Card custom styles */
 .issue-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #f1f5f9;
+    border-top-width: 4px;
 }
 
 .issue-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
 }
 
-.status-badge-open {
-  border-top: 4px solid #22C55E;
-}
-
-.status-badge-closed {
-  border-top: 4px solid #A855F7;
-}
+.status-badge-open { border-top-color: #22C55E !important; }
+.status-badge-closed { border-top-color: #A855F7 !important; }
 
 .label-pill {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  text-transform: uppercase;
-  font-weight: 700;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid transparent;
+}
+
+.priority-badge {
+    font-size: 10px;
+    padding: 2px 12px;
+    border-radius: 4px;
+    font-weight: 700;
 }
