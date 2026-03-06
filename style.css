@@ -1,0 +1,42 @@
+* {
+  font-family: 'Geist', sans-serif;
+}
+
+.active-tab {
+  background-color: #6366F1 !important;
+  color: white !important;
+}
+
+.tab-btn {
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover:not(.active-tab) {
+  background-color: #F1F5F9;
+}
+
+/* Card custom styles */
+.issue-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.issue-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge-open {
+  border-top: 4px solid #22C55E;
+}
+
+.status-badge-closed {
+  border-top: 4px solid #A855F7;
+}
+
+.label-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
