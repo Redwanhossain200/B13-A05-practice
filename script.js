@@ -1,38 +1,56 @@
+
 let allIssues = [];
 
-// 1. Auth Logic
+grid.classList.add('opacity-0');
+
+setTimeout(() => {
+  grid.classList.remove('opacity-0');
+  grid.classList.add('opacity-100', 'transition-opacity', 'duration-500');
+}, 10);
+
 document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
   const user = document.getElementById('username').value;
   const pass = document.getElementById('password').value;
 
+  console.log("Attempting login with:", { username: user, password: pass });
+
   if (user === 'admin' && pass === 'admin123') {
+    console.log("Login successful!");
     document.getElementById('login-section').classList.add('hidden');
     document.getElementById('main-section').classList.remove('hidden');
     fetchIssues();
   } else {
+    console.warn("Login failed: Invalid credentials.");
     alert('Invalid credentials!');
   }
 });
 
-// 2. Fetch Data
+// ২. ডাটা ফেচ করা (Fetch Data)
 async function fetchIssues() {
   const spinner = document.getElementById('loading-spinner');
   spinner.classList.remove('hidden');
+  console.log("Fetching all issues...");
 
   try {
     const res = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues');
     const result = await res.json();
-    allIssues = result.data;
-    displayIssues(allIssues);
+
+    console.log("Fetch Response:", result);
+
+    if (result.status === "success") {
+      allIssues = result.data;
+      console.log(`Total ${allIssues.length} issues loaded.`);
+      displayIssues(allIssues);
+    }
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Error while fetching issues:", error);
   } finally {
     spinner.classList.add('hidden');
   }
-};
+}
 
-// --- Icon and Label Helper Function ---
+// আইকন এবং লেবেল হেল্পার ফাংশন
 function getLabelHTML(labels) {
   return labels.map(l => {
     let labelLower = l.toLowerCase();
@@ -41,19 +59,19 @@ function getLabelHTML(labels) {
 
     if (labelLower.includes('bug')) {
       color = 'bg-red-50 text-red-500 border-red-100';
-      icon = 'fa-bug'; 
+      icon = 'fa-bug';
     } else if (labelLower.includes('help')) {
       color = 'bg-orange-50 text-orange-500 border-orange-100';
-      icon = 'fa-hand-holding-heart'; 
+      icon = 'fa-hand-holding-heart';
     } else if (labelLower.includes('enhancement')) {
       color = 'bg-blue-50 text-blue-500 border-blue-100';
-      icon = 'fa-wand-magic-sparkles'; 
+      icon = 'fa-wand-magic-sparkles';
     } else if (labelLower.includes('documentation')) {
       color = 'bg-gray-50 text-gray-500 border-gray-100';
-      icon = 'fa-file-lines'; 
+      icon = 'fa-file-lines';
     } else {
       color = 'bg-green-50 text-green-500 border-green-100';
-      icon = 'fa-tag'; 
+      icon = 'fa-tag';
     }
 
     return `<span class="label-pill ${color} border py-1 px-3 rounded-full text-[11px] flex items-center gap-1">
@@ -63,10 +81,12 @@ function getLabelHTML(labels) {
   }).join('');
 }
 
-// 3. Display Function
+// ৩. ডিসপ্লে ফাংশন (Display Function)
 function displayIssues(issues) {
   const grid = document.getElementById('issue-grid');
   document.getElementById('issue-count-text').innerText = `${issues.length} Issues`;
+
+  console.log("Rendering issues to grid...");
 
   grid.innerHTML = issues.map(issue => {
     const statusIcon = issue.status === 'open'
@@ -103,28 +123,45 @@ function getPriorityClass(p) {
   return 'text-[#9ca3af] bg-[#eeeff2] rounded-2xl px-6 py-1 font-semibold';
 }
 
-// 4. Filter & Search
+// ৪. ফিল্টার এবং সার্চ (Filter & Search)
 function filterData(status) {
+  console.log(`Filtering data by status: ${status}`);
+
+  // ট্যাব স্টাইল আপডেট
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab', 'text-gray-500'));
   event.target.classList.add('active-tab');
+
   const filtered = status === 'all' ? allIssues : allIssues.filter(i => i.status === status);
+
+  console.log(`Filtered result count: ${filtered.length}`);
   displayIssues(filtered);
 }
 
 document.getElementById('search-input').addEventListener('input', async (e) => {
   const query = e.target.value.toLowerCase();
-  if (query.length < 2) return displayIssues(allIssues);
+  console.log(`Searching for: "${query}"`);
+
+  if (query.length < 2) {
+    console.log("Search query too short, showing all issues.");
+    return displayIssues(allIssues);
+  }
+
   try {
     const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
     const result = await res.json();
+    console.log("Search Results API:", result);
     displayIssues(result.data);
-  } catch (err) { console.log(err); }
+  } catch (err) {
+    console.error("Search API Error:", err);
+  }
 });
 
-// 5. Modal Details
+// ৫. মোডাল ডিটেইলস (Modal Details)
 async function showDetails(id) {
+  console.log(`Opening details for Issue ID: ${id}`);
   const modal = document.getElementById('issue_modal');
   const content = document.getElementById('modal-content');
+
   content.innerHTML = '<div class="flex justify-center py-10"><span class="loading loading-dots loading-lg"></span></div>';
   modal.showModal();
 
@@ -133,26 +170,37 @@ async function showDetails(id) {
     const result = await res.json();
     const data = result.data;
 
+    console.log("Single Issue Data:", data);
+
     content.innerHTML = `
         <h2 class="text-3xl font-bold text-[#1E293B] mb-4">${data.title}</h2>
-        <div class="flex items-center gap-3 mb-6">
-            <span class="px-3 py-1 rounded-full bg-[#00BA88] text-white text-sm font-medium">Opened</span>
-            <span class="text-gray-400 text-sm">• Opened by <span class="text-gray-600 font-medium">${data.author}</span> • ${new Date(data.createdAt).toLocaleDateString()}</span>
+        
+        <div class="flex items-center gap-2 mb-6 text-sm">
+            <span class="px-3 py-1 rounded-full bg-[#00BA88] text-white font-medium flex items-center">Opened</span>
+            <span class="text-gray-400">• Opened by <span class="text-gray-500 font-medium">${data.author}</span> • ${new Date(data.createdAt).toLocaleDateString('en-GB')}</span>
         </div>
-        <div class="flex gap-2 mb-8">
+
+        <div class="flex flex-wrap gap-2 mb-8">
             ${getLabelHTML(data.labels)}
         </div>
-        <p class="text-gray-500 leading-relaxed mb-8">${data.description}</p>
-        <div class="bg-gray-50 p-6 rounded-2xl flex justify-between items-center gap-3">
+
+        <p class="text-[#64748B] leading-relaxed mb-8 text-[15px]">${data.description}</p>
+        
+        <div class="bg-[#F8FAFC] p-6 rounded-xl flex justify-between items-start gap-24"> 
             <div>
-                <p class="text-xs text-gray-400 font-bold uppercase mb-1">Assignee:</p>
-                <p class="font-bold text-[#1E293B]">${data.assignee || 'Unassigned'}</p>
+                <p class="text-[13px] text-[#64748B] mb-1">Assignee:</p>
+                <p class="font-bold text-[#1E293B] text-[15px]">${data.assignee || 'Unassigned'}</p>
             </div>
-            <div class="align-middle">
-                <p class="text-xs text-gray-400 font-bold uppercase mb-2">Priority:</p>
-                <span class="bg-red-500 text-white px-6 py-1 rounded-2xl text-xs font-bold uppercase">${data.priority}</span>
+            <div>
+                <p class="text-[13px] text-[#64748B] mb-2">Priority:</p>
+                <span class="bg-[#EF4444] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase inline-block">
+                  ${data.priority}
+                </span>
             </div>
         </div>
     `;
-  } catch (err) { content.innerHTML = '<p class="text-red-500">Error loading details.</p>'; };
-};
+  } catch (err) {
+    console.error("Modal Data Fetch Error:", err);
+    content.innerHTML = '<p class="text-red-500 text-center">Error loading details.</p>';
+  }
+}

@@ -16,7 +16,7 @@
 }
 
 .issue-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   border: 1px solid #f1f5f9;
   border-top-width: 4px;
   cursor: pointer;
@@ -53,4 +53,22 @@
   padding: 2px 12px;
   border-radius: 4px;
   font-weight: 700;
+}
+
+/* নতুন এন্ট্রান্স অ্যানিমেশন */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.issue-card {
+  /* আগের স্টাইল ঠিক থাকবে, শুধু নিচের লাইনটি যোগ করুন */
+  animation: fadeInUp 0.4s ease-out forwards;
 }
