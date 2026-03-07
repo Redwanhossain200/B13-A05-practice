@@ -82,12 +82,13 @@ function displayIssues(issues) {
 
   grid.innerHTML = issues.map(issue => {
     const isOpen = issue.status === 'open';
-    const statusImg = isOpen ? 'Open-Status.png' : 'Closed- Status .png';
+    const statusImg = isOpen ? 'Open-Status.png' : 'Closed-Status.png';
     const statusClass = isOpen ? 'status-badge-open' : 'status-badge-closed';
     const formattedDate = new Date(issue.createdAt).toLocaleDateString();
+    const formattedDate2 = new Date(issue.updatedAt).toLocaleDateString();
 
     return `
-      <div class="issue-card bg-white rounded-lg p-5 flex flex-col justify-between ${statusClass}">
+      <div class="issue-card bg-white rounded-lg cursor-pointer p-5 flex flex-col justify-between ${statusClass}" onclick="showDetails(${issue.id})">
         <div>
           <div class="flex justify-between items-center mb-4 gap-2">
             <span><img src="./assets/${statusImg}" alt="${issue.status}"></span>
@@ -96,8 +97,8 @@ function displayIssues(issues) {
             </span>
           </div>
           
-          <h3 onclick="showDetails(${issue.id})" 
-              class="text-[15px] font-bold text-[#1E293B] cursor-pointer hover:text-[#6366F1] transition-colors mb-2 line-clamp-2">
+          <h3  
+              class="text-[15px] font-bold text-[#1E293B] mb-2 line-clamp-2">
             ${issue.title}
           </h3>
           
@@ -110,17 +111,23 @@ function displayIssues(issues) {
           </div>
         </div>
 
-        <div class="border-t border-gray-50 pt-3 mt-auto flex flex-col gap-1 text-[10px] text-gray-400">
-          <span class="font-medium text-gray-500">#${issue.id} by @${issue.author}</span>
+        <div class="border-t border-gray-50 pt-3 mt-auto flex justify-between items-center flex-wrap gap-4 text-[10px] text-gray-400">
+          <span class="font-medium">#${issue.id} by @${issue.author}</span>
           <span>${formattedDate}</span>
         </div>
+
+        <div class="pt-3  flex justify-between items-center flex-wrap gap-4 text-[10px] text-gray-400">
+          <span class="font-medium">Assignee: ${issue.assignee}</span>
+          <span>Updated: ${formattedDate2}</span>        
+        </div>
+
       </div>
     `;
   }).join('');
 };
 
 function getPriorityClass(priority) {
-  const baseStyle = "rounded-2xl px-6 py-1 font-semibold";
+  const baseStyle = "rounded-2xl px-6 py-1 font-semibold uppercase text-[14px]";
 
   const colors = {
     high: "text-[#ef4444] bg-[#FEECEC]",
@@ -133,13 +140,15 @@ function getPriorityClass(priority) {
   return `${selectedColor} ${baseStyle}`;
 };
 
+
 function filterData(status) {
-  const allButtons = document.querySelectorAll('.tab-btn');
+
+  const buttons = document.querySelectorAll('.tab-btn');
   const spinner = document.getElementById('loading-spinner');
   const grid = document.getElementById('issue-grid');
 
-  allButtons.forEach(btn => {
-    btn.classList.remove('active-tab', 'text-gray-500');
+  buttons.forEach(function (btn) {
+    btn.classList.remove('active-tab');
     btn.classList.add('text-gray-500');
   });
 
@@ -148,19 +157,28 @@ function filterData(status) {
     event.target.classList.remove('text-gray-500');
   }
 
-  grid.innerHTML = '';
+  grid.innerHTML = "";
   spinner.classList.remove('hidden');
 
-  setTimeout(() => {
-    const filtered = status === 'all'
-      ? allIssues
-      : allIssues.filter(issue => issue.status === status);
+  setTimeout(function () {
 
-    displayIssues(filtered);
+    let filteredIssues;
+
+    if (status === "all") {
+      filteredIssues = allIssues;
+    }
+    else {
+      filteredIssues = allIssues.filter(function (issue) {
+        return issue.status === status;
+      });
+    }
+
+    displayIssues(filteredIssues);
 
     spinner.classList.add('hidden');
+
   }, 300);
-};
+}
 
 async function handleSearch() {
   const query = document.getElementById('search-input').value.toLowerCase();
