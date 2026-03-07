@@ -6,16 +6,13 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
   const user = document.getElementById('username').value;
   const pass = document.getElementById('password').value;
 
-  console.log("Attempting login with:", { username: user, password: pass });
-
   if (user === 'admin' && pass === 'admin123') {
     console.log("Login successful!");
     document.getElementById('login-section').classList.add('hidden');
     document.getElementById('main-section').classList.remove('hidden');
     fetchIssues();
   } else {
-    console.warn("Login failed: Invalid credentials.");
-    alert('Invalid credentials!');
+    alert('Invalid!');
   }
 });
 
@@ -43,7 +40,7 @@ async function fetchIssues() {
   } finally {
     spinner.classList.add('hidden');
   }
-}
+};
 
 function getLabelHTML(labels) {
   return labels.map(l => {
@@ -78,46 +75,80 @@ function getLabelHTML(labels) {
 function displayIssues(issues) {
   const grid = document.getElementById('issue-grid');
   const countText = document.getElementById('issue-count-text');
-  if (countText) countText.innerText = `${issues.length} Issues`;
+
+  if (countText) {
+    countText.innerText = `${issues.length} Issues`;
+  }
 
   grid.innerHTML = issues.map(issue => {
-    const statusImg = issue.status === 'open' ? 'Open-Status.png' : 'Closed- Status .png';
+    const isOpen = issue.status === 'open';
+    const statusImg = isOpen ? 'Open-Status.png' : 'Closed- Status .png';
+    const statusClass = isOpen ? 'status-badge-open' : 'status-badge-closed';
+    const formattedDate = new Date(issue.createdAt).toLocaleDateString();
 
     return `
-        <div class="issue-card bg-white rounded-lg p-5 flex flex-col justify-between ${issue.status === 'open' ? 'status-badge-open' : 'status-badge-closed'}">
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <span><img src="./assets/${statusImg}" alt="${issue.status}"></span>
-                    <span class="priority-badge uppercase ${getPriorityClass(issue.priority)}">${issue.priority}</span>
-                </div>
-                <h3 onclick="showDetails(${issue.id})" class="text-[15px] font-bold text-[#1E293B] cursor-pointer hover:text-[#6366F1] transition-colors mb-2 line-clamp-2">
-                    ${issue.title}
-                </h3>
-                <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">${issue.description}</p>
-                <div class="flex flex-wrap gap-2 mb-4">
-                    ${getLabelHTML(issue.labels)}
-                </div>
-            </div>
-            <div class="border-t border-gray-50 pt-3 mt-auto flex flex-col gap-1 text-[10px] text-gray-400">
-                <span class="font-medium text-gray-500">#${issue.id} by @${issue.author}</span>
-                <span>${new Date(issue.createdAt).toLocaleDateString()}</span>
-            </div>
+      <div class="issue-card bg-white rounded-lg p-5 flex flex-col justify-between ${statusClass}">
+        <div>
+          <div class="flex justify-between items-center mb-4 gap-2">
+            <span><img src="./assets/${statusImg}" alt="${issue.status}"></span>
+            <span class="priority-badge uppercase ${getPriorityClass(issue.priority)}">
+              ${issue.priority}
+            </span>
+          </div>
+          
+          <h3 onclick="showDetails(${issue.id})" 
+              class="text-[15px] font-bold text-[#1E293B] cursor-pointer hover:text-[#6366F1] transition-colors mb-2 line-clamp-2">
+            ${issue.title}
+          </h3>
+          
+          <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">
+            ${issue.description}
+          </p>
+          
+          <div class="flex flex-wrap gap-2 mb-4">
+            ${getLabelHTML(issue.labels)}
+          </div>
         </div>
+
+        <div class="border-t border-gray-50 pt-3 mt-auto flex flex-col gap-1 text-[10px] text-gray-400">
+          <span class="font-medium text-gray-500">#${issue.id} by @${issue.author}</span>
+          <span>${formattedDate}</span>
+        </div>
+      </div>
     `;
   }).join('');
 }
 
-function getPriorityClass(p) {
-  if (p === 'high') return 'text-[#ef4444] bg-[#FEECEC] rounded-2xl px-6 py-1 font-semibold';
-  if (p === 'medium') return 'text-[#f59e0b] bg-[#FFF6D1] rounded-2xl px-6 py-1 font-semibold';
-  return 'text-[#9ca3af] bg-[#eeeff2] rounded-2xl px-6 py-1 font-semibold';
+function getPriorityClass(priority) {
+  const baseStyle = "rounded-2xl px-6 py-1 font-semibold";
+
+  const colors = {
+    high: "text-[#ef4444] bg-[#FEECEC]",
+    medium: "text-[#f59e0b] bg-[#FFF6D1]",
+    low: "text-[#9ca3af] bg-[#eeeff2]"
+  };
+
+  const selectedColor = colors[priority] || colors.low;
+
+  return `${selectedColor} ${baseStyle}`;
 }
 
 function filterData(status) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab', 'text-gray-500'));
-  if (event) event.target.classList.add('active-tab');
+  const allButtons = document.querySelectorAll('.tab-btn');
+  allButtons.forEach(btn => {
+    btn.classList.remove('active-tab', 'text-gray-500');
+    btn.classList.add('text-gray-500');
+  });
 
-  const filtered = status === 'all' ? allIssues : allIssues.filter(i => i.status === status);
+  if (event) {
+    event.target.classList.add('active-tab');
+    event.target.classList.remove('text-gray-500');
+  }
+
+  const filtered = status === 'all'
+    ? allIssues
+    : allIssues.filter(issue => issue.status === status);
+
   displayIssues(filtered);
 }
 
@@ -137,7 +168,7 @@ if (searchInput) {
       console.error("Search API Error:", err);
     }
   });
-}
+};
 
 async function showDetails(id) {
   const modal = document.getElementById('issue_modal');
@@ -166,7 +197,7 @@ async function showDetails(id) {
                 <p class="text-[13px] text-[#64748B] mb-1">Assignee:</p>
                 <p class="font-bold text-[#1E293B] text-[15px]">${data.assignee || 'Unassigned'}</p>
             </div>
-            <div>
+            <div class="text-left">
                 <p class="text-[13px] text-[#64748B] mb-2">Priority:</p>
                 <span class="bg-[#EF4444] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase inline-block">
                   ${data.priority}
