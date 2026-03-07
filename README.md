@@ -22,4 +22,5 @@ Ans: A short and modern way to write functions. It looks like () => {}.
 
 5.What are template literals?
 
+
 Ans: Variables can be written directly within a string using ${variable} using a backtick (`).
