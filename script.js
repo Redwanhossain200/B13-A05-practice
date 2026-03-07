@@ -111,12 +111,12 @@ function displayIssues(issues) {
           </div>
         </div>
 
-        <div class="border-t border-gray-50 pt-3 mt-auto flex justify-between items-center flex-wrap gap-4 text-[10px] text-gray-400">
+        <div class="border-t border-gray-200 pt-3 mt-auto flex justify-between items-center flex-wrap gap-4 text-[10px] text-[#64748B]">
           <span class="font-medium">#${issue.id} by @${issue.author}</span>
           <span>${formattedDate}</span>
         </div>
 
-        <div class="pt-3  flex justify-between items-center flex-wrap gap-4 text-[10px] text-gray-400">
+        <div class="pt-3  flex justify-between items-center flex-wrap gap-4 text-[10px] text-[#64748B]">
           <span class="font-medium">Assignee: ${issue.assignee}</span>
           <span>Updated: ${formattedDate2}</span>        
         </div>
