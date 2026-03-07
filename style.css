@@ -16,10 +16,10 @@
 }
 
 .issue-card {
-  transition: all 0.2s ease;
   border: 1px solid #f1f5f9;
   border-top-width: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 .issue-card:hover {
@@ -28,7 +28,7 @@
 }
 
 .status-badge-open {
-  border-top-color: #22C55E !important;
+  border-top-color: #00A96E !important;
 }
 
 .status-badge-closed {

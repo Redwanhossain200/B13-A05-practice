@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -74,9 +74,9 @@
             <input type="text" id="search-input" placeholder="Search issues..."
               class="input input-bordered w-full pl-10 h-10 text-sm focus:outline-none focus:ring-1 focus:ring-[#6366F1] rounded-md bg-white">
           </div>
-          <button
-            class="btn bg-[#6366F1] text-white btn-sm h-10 px-4 border-none hover:bg-[#4F46E5] hover:scale-105 active:scale-95 transition-transform">
-            <i class="fa-solid fa-plus"></i> New Issue
+          <button id="search-btn"
+            class="btn bg-[#6366F1] text-white btn-sm h-10 px-8 py-1 border-none hover:bg-[#4F46E5] hover:scale-105 active:scale-95 transition-transform">
+            Search
           </button>
         </div>
       </div>
@@ -113,7 +113,7 @@
       </div>
 
       <div id="issue-grid"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 border border-t-0 border-gray-100 rounded-b-xl min-h-[400px]">
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 border border-t-0 border-gray-100 rounded-b-xl">
       </div>
     </main>
   </section>

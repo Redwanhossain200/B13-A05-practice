@@ -70,7 +70,7 @@ function getLabelHTML(labels) {
                 ${l}
             </span>`;
   }).join('');
-}
+};
 
 function displayIssues(issues) {
   const grid = document.getElementById('issue-grid');
@@ -117,7 +117,7 @@ function displayIssues(issues) {
       </div>
     `;
   }).join('');
-}
+};
 
 function getPriorityClass(priority) {
   const baseStyle = "rounded-2xl px-6 py-1 font-semibold";
@@ -131,10 +131,13 @@ function getPriorityClass(priority) {
   const selectedColor = colors[priority] || colors.low;
 
   return `${selectedColor} ${baseStyle}`;
-}
+};
 
 function filterData(status) {
   const allButtons = document.querySelectorAll('.tab-btn');
+  const spinner = document.getElementById('loading-spinner');
+  const grid = document.getElementById('issue-grid');
+
   allButtons.forEach(btn => {
     btn.classList.remove('active-tab', 'text-gray-500');
     btn.classList.add('text-gray-500');
@@ -145,28 +148,62 @@ function filterData(status) {
     event.target.classList.remove('text-gray-500');
   }
 
-  const filtered = status === 'all'
-    ? allIssues
-    : allIssues.filter(issue => issue.status === status);
+  grid.innerHTML = '';
+  spinner.classList.remove('hidden');
 
-  displayIssues(filtered);
+  setTimeout(() => {
+    const filtered = status === 'all'
+      ? allIssues
+      : allIssues.filter(issue => issue.status === status);
+
+    displayIssues(filtered);
+
+    spinner.classList.add('hidden');
+  }, 300);
+};
+
+async function handleSearch() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  const spinner = document.getElementById('loading-spinner');
+  const grid = document.getElementById('issue-grid');
+
+  if (query.trim() === "") {
+    displayIssues(allIssues);
+    return;
+  }
+
+  grid.innerHTML = '';
+  spinner.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
+    const result = await res.json();
+
+    if (result.status === "success" && result.data) {
+      displayIssues(result.data);
+    }
+  } catch (err) {
+    console.error("Search API Error:", err);
+  } finally {
+    spinner.classList.add('hidden');
+  }
+};
+
+const searchBtn = document.getElementById('search-btn');
+if (searchBtn) {
+  searchBtn.addEventListener('click', handleSearch);
 }
 
 const searchInput = document.getElementById('search-input');
 if (searchInput) {
-  searchInput.addEventListener('input', async (e) => {
-    const query = e.target.value.toLowerCase();
-    if (query.length < 2) {
-      return displayIssues(allIssues);
+  searchInput.addEventListener('input', (e) => {
+    if (e.target.value.trim() === "") {
+      displayIssues(allIssues);
     }
+  });
 
-    try {
-      const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
-      const result = await res.json();
-      displayIssues(result.data);
-    } catch (err) {
-      console.error("Search API Error:", err);
-    }
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSearch();
   });
 };
 
@@ -182,10 +219,16 @@ async function showDetails(id) {
     const result = await res.json();
     const data = result.data;
 
+    const isOpened = data.status === 'open';
+    const statusText = isOpened ? 'Opened' : 'Closed';
+    const statusBg = isOpened ? 'bg-[#00BA88]' : 'bg-[#A855F7]';
+
     content.innerHTML = `
         <h2 class="text-3xl font-bold text-[#1E293B] mb-4">${data.title}</h2>
         <div class="flex items-center gap-2 mb-6 text-sm">
-            <span class="px-3 py-1 rounded-full bg-[#00BA88] text-white font-medium flex items-center">Opened</span>
+            <span class="px-3 py-1 rounded-full ${statusBg} text-white font-medium flex items-center">
+              ${statusText}
+            </span>
             <span class="text-gray-400">• Opened by <span class="text-gray-500 font-medium">${data.author}</span> • ${new Date(data.createdAt).toLocaleDateString('en-GB')}</span>
         </div>
         <div class="flex flex-wrap gap-2 mb-8">
@@ -199,7 +242,7 @@ async function showDetails(id) {
             </div>
             <div class="text-left">
                 <p class="text-[13px] text-[#64748B] mb-2">Priority:</p>
-                <span class="bg-[#EF4444] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase inline-block">
+                <span class="${getPriorityClass(data.priority)} inline-block">
                   ${data.priority}
                 </span>
             </div>
@@ -208,4 +251,4 @@ async function showDetails(id) {
   } catch (err) {
     content.innerHTML = '<p class="text-red-500 text-center">Error loading details.</p>';
   }
-}
+};
