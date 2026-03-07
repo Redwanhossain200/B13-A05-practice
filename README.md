@@ -1,3 +1,5 @@
+# Questions & Answers
+
 1. What is the difference between var, let, and const?
 
 Ans: var is old-fashioned, which has scope issues. If you declare a variable with let, you can change its value later. And const means that once the value is set, it cannot be changed again.
