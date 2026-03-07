@@ -1,15 +1,8 @@
-
 let allIssues = [];
-
-grid.classList.add('opacity-0');
-
-setTimeout(() => {
-  grid.classList.remove('opacity-0');
-  grid.classList.add('opacity-100', 'transition-opacity', 'duration-500');
-}, 10);
 
 document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
+
   const user = document.getElementById('username').value;
   const pass = document.getElementById('password').value;
 
@@ -26,21 +19,23 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
   }
 });
 
-// ২. ডাটা ফেচ করা (Fetch Data)
 async function fetchIssues() {
   const spinner = document.getElementById('loading-spinner');
+  const grid = document.getElementById('issue-grid');
   spinner.classList.remove('hidden');
-  console.log("Fetching all issues...");
+
+  grid.classList.add('opacity-0');
+  setTimeout(() => {
+    grid.classList.remove('opacity-0');
+    grid.classList.add('opacity-100', 'transition-opacity', 'duration-500');
+  }, 10);
 
   try {
     const res = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues');
     const result = await res.json();
 
-    console.log("Fetch Response:", result);
-
     if (result.status === "success") {
       allIssues = result.data;
-      console.log(`Total ${allIssues.length} issues loaded.`);
       displayIssues(allIssues);
     }
   } catch (error) {
@@ -50,7 +45,6 @@ async function fetchIssues() {
   }
 }
 
-// আইকন এবং লেবেল হেল্পার ফাংশন
 function getLabelHTML(labels) {
   return labels.map(l => {
     let labelLower = l.toLowerCase();
@@ -81,23 +75,19 @@ function getLabelHTML(labels) {
   }).join('');
 }
 
-// ৩. ডিসপ্লে ফাংশন (Display Function)
 function displayIssues(issues) {
   const grid = document.getElementById('issue-grid');
-  document.getElementById('issue-count-text').innerText = `${issues.length} Issues`;
-
-  console.log("Rendering issues to grid...");
+  const countText = document.getElementById('issue-count-text');
+  if (countText) countText.innerText = `${issues.length} Issues`;
 
   grid.innerHTML = issues.map(issue => {
-    const statusIcon = issue.status === 'open'
-      ? '<img src="./assets/Open-Status.png" alt="open status">'
-      : '<img src="./assets/Closed- Status .png" alt="Closed Status">';
+    const statusImg = issue.status === 'open' ? 'Open-Status.png' : 'Closed- Status .png';
 
     return `
         <div class="issue-card bg-white rounded-lg p-5 flex flex-col justify-between ${issue.status === 'open' ? 'status-badge-open' : 'status-badge-closed'}">
             <div>
                 <div class="flex justify-between items-center mb-4">
-                    <span>${statusIcon}</span>
+                    <span><img src="./assets/${statusImg}" alt="${issue.status}"></span>
                     <span class="priority-badge uppercase ${getPriorityClass(issue.priority)}">${issue.priority}</span>
                 </div>
                 <h3 onclick="showDetails(${issue.id})" class="text-[15px] font-bold text-[#1E293B] cursor-pointer hover:text-[#6366F1] transition-colors mb-2 line-clamp-2">
@@ -123,42 +113,33 @@ function getPriorityClass(p) {
   return 'text-[#9ca3af] bg-[#eeeff2] rounded-2xl px-6 py-1 font-semibold';
 }
 
-// ৪. ফিল্টার এবং সার্চ (Filter & Search)
 function filterData(status) {
-  console.log(`Filtering data by status: ${status}`);
-
-  // ট্যাব স্টাইল আপডেট
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab', 'text-gray-500'));
-  event.target.classList.add('active-tab');
+  if (event) event.target.classList.add('active-tab');
 
   const filtered = status === 'all' ? allIssues : allIssues.filter(i => i.status === status);
-
-  console.log(`Filtered result count: ${filtered.length}`);
   displayIssues(filtered);
 }
 
-document.getElementById('search-input').addEventListener('input', async (e) => {
-  const query = e.target.value.toLowerCase();
-  console.log(`Searching for: "${query}"`);
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+  searchInput.addEventListener('input', async (e) => {
+    const query = e.target.value.toLowerCase();
+    if (query.length < 2) {
+      return displayIssues(allIssues);
+    }
 
-  if (query.length < 2) {
-    console.log("Search query too short, showing all issues.");
-    return displayIssues(allIssues);
-  }
+    try {
+      const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
+      const result = await res.json();
+      displayIssues(result.data);
+    } catch (err) {
+      console.error("Search API Error:", err);
+    }
+  });
+}
 
-  try {
-    const res = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
-    const result = await res.json();
-    console.log("Search Results API:", result);
-    displayIssues(result.data);
-  } catch (err) {
-    console.error("Search API Error:", err);
-  }
-});
-
-// ৫. মোডাল ডিটেইলস (Modal Details)
 async function showDetails(id) {
-  console.log(`Opening details for Issue ID: ${id}`);
   const modal = document.getElementById('issue_modal');
   const content = document.getElementById('modal-content');
 
@@ -170,22 +151,16 @@ async function showDetails(id) {
     const result = await res.json();
     const data = result.data;
 
-    console.log("Single Issue Data:", data);
-
     content.innerHTML = `
         <h2 class="text-3xl font-bold text-[#1E293B] mb-4">${data.title}</h2>
-        
         <div class="flex items-center gap-2 mb-6 text-sm">
             <span class="px-3 py-1 rounded-full bg-[#00BA88] text-white font-medium flex items-center">Opened</span>
             <span class="text-gray-400">• Opened by <span class="text-gray-500 font-medium">${data.author}</span> • ${new Date(data.createdAt).toLocaleDateString('en-GB')}</span>
         </div>
-
         <div class="flex flex-wrap gap-2 mb-8">
             ${getLabelHTML(data.labels)}
         </div>
-
         <p class="text-[#64748B] leading-relaxed mb-8 text-[15px]">${data.description}</p>
-        
         <div class="bg-[#F8FAFC] p-6 rounded-xl flex justify-between items-start gap-24"> 
             <div>
                 <p class="text-[13px] text-[#64748B] mb-1">Assignee:</p>
@@ -200,7 +175,6 @@ async function showDetails(id) {
         </div>
     `;
   } catch (err) {
-    console.error("Modal Data Fetch Error:", err);
     content.innerHTML = '<p class="text-red-500 text-center">Error loading details.</p>';
   }
 }
